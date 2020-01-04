@@ -12,7 +12,7 @@
             <td lang="<%= locale.code %>" dir="<%= locale.ltr? ? 'ltr' : 'rtl' %>"><%= h(::Language[locale.code].native_name) %></td>
             <td class="tr"><%= @num_texts[locale.code] %>/<%= @num_texts['en'] %></td>
             <td class="tr <%= percent > 90 ? 'good' : ( percent <= 80 ? 'bad' : 'okay' ) %>"><%= percent %>%</td>
-            <td><a href="/taginfo/i18n?lang=<%= locale.code %>">see texts</a></td>
+            <td><a href="<%= @taginfo_config.id %>/taginfo/i18n?lang=<%= locale.code %>">see texts</a></td>
         </tr>
 <% end %>
     </table>

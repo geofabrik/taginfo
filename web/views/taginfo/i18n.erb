@@ -11,7 +11,7 @@
         <th></th>
         <th><a class="extlink" style="float: right;" href="https://github.com/taginfo/taginfo/blob/master/web/i18n/en.yml">on github</a>English</th>
         <th><a class="extlink" style="float: right;" href="https://github.com/taginfo/taginfo/blob/master/web/i18n/<%= @lang.downcase %>.yml">on github</a>
-<form action="/taginfo/i18n" method="GET">
+<form action="<%= @taginfo_config.id %>/taginfo/i18n" method="GET">
     <select id="lang" name="lang">
 <% r18n.available_locales.sort{ |a,b| a.title <=> b.title }.each do |locale| %>
         <option lang="<%= locale.code %>" dir="<%= locale.ltr? ? 'ltr': 'rtl' %>" value="<%= locale.code %>"<%= @lang == locale.code ? ' selected="selected"' : ''%>><%= locale.title %></option>

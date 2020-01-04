@@ -57,7 +57,7 @@ require 'lib/langtag/bcp47.rb'
 
 #------------------------------------------------------------------------------
 
-defined?($taginfo_config) || $taginfo_config = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json')
+defined?($taginfo_config) || $taginfo_config = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json', '')
 
 #------------------------------------------------------------------------------
 
@@ -120,8 +120,8 @@ class Taginfo < Sinatra::Base
         @taginfo_config = $taginfo_config
 
         javascript_for(:common)
-        javascript_for(:taginfo)
-        javascript r18n.locale.code + '/texts'
+        javascript_with_prefix @taginfo_config.id, "taginfo"
+        javascript_with_prefix @taginfo_config.id, r18n.locale.code + '/texts'
 
         # set to immediate expire on normal pages
         # (otherwise switching languages doesn't work)
@@ -163,12 +163,12 @@ class Taginfo < Sinatra::Base
     #-------------------------------------
 
     get '/' do
-        javascript "#{ r18n.locale.code }/index"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/index"
         erb :index
     end
 
     get '/test-index' do
-        javascript "#{ r18n.locale.code }/test-index"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/test-index"
         erb :'test-index'
     end
 
@@ -187,7 +187,7 @@ class Taginfo < Sinatra::Base
             @title = t.osm[page]
             section page
             javascript_for(:flexigrid)
-            javascript "#{ r18n.locale.code }/#{ page }"
+            javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/#{ page }"
             erb page.to_sym
         end
     end
@@ -200,6 +200,11 @@ class Taginfo < Sinatra::Base
         @trans = R18n::I18n.new(lang, 'i18n')
         erb :"#{js}.js", :layout => false, :content_type => 'text/javascript', :views => 'viewsjs'
     end
+
+    get '/js/taginfo.js' do
+        erb :"taginfo.js", :layout => false, :content_type => 'text/javascript', :views => 'viewsjs'
+    end
+
 
     #--------------------------------------------------------------------------
 

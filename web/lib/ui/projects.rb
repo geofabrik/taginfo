@@ -5,7 +5,7 @@ class Taginfo < Sinatra::Base
         @title = t.taginfo.projects
         section :projects
         javascript_for(:flexigrid)
-        javascript "#{ r18n.locale.code }/projects"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/projects"
         erb :projects
     end
 
@@ -28,7 +28,8 @@ class Taginfo < Sinatra::Base
         section :projects
 
         javascript_for(:flexigrid)
-        javascript "#{ r18n.locale.code }/project"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/project"
+
         erb :project
     end
 

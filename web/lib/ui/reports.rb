@@ -11,7 +11,7 @@ class Taginfo < Sinatra::Base
         get report.url do
             section :reports
             if File.exists?("viewsjs/reports/#{ report.name }.js.erb")
-                javascript "#{ r18n.locale.code }/reports/#{ report.name }"
+                javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/reports/#{ report.name }"
             end
             javascript_for(:flexigrid)
             erb ('reports/' + report.name).to_sym

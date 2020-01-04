@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="/css/smoothness/jquery-ui-1.8.10.custom-minified.css" />
     <link rel="stylesheet" type="text/css" href="/css/flexigrid/flexigrid-minified.css" />
     <link rel="stylesheet" type="text/css" href="/css/slicknav.min.css" />
-    <link rel="search" type="application/opensearchdescription+xml" href="/search/opensearch.xml" title="<%= @taginfo_config.get('opensearch.shortname') %>" />
+    <link rel="search" type="application/opensearchdescription+xml" href="<%= @taginfo_config.id %>/search/opensearch.xml" title="<%= @taginfo_config.get('opensearch.shortname') %>" />
 <% if @css %>
     <style type="text/css"><!--
 <%= @css %>
@@ -21,7 +21,7 @@
     <div id="header">
         <div id="header_date" title="<%= h(t.taginfo.data_from_description) %>" tipsy="<%= r18n.locale.ltr? ? 'ne' : 'nw' %>"><%= h(t.taginfo.data_from) %>: <%= @db.data_until %> UTC</div>
         <div id="header_forms" class="no-print">
-            <form id="set_language" action="/switch_locale">
+		<form id="set_language" action="<%= @taginfo_config.id %>/switch_locale">
                 <input type="hidden" id="url" name="url" value="<%= request.path %>"/>
                 <select id="locale" name="locale">
 <% r18n.available_locales.sort{ |a,b| a.title <=> b.title }.each do |locale| %>
@@ -30,26 +30,29 @@
                 </select>
             </form>
 <% unless @nosearch %>
-            <form id="search_form" action="/search"><input type="text" id="search" name="q" value="<%= h(params[:q]) %>"/></form>
+	<form id="search_form" action="<%= @taginfo_config.id %>/search"><input type="text" id="search" name="q" value="<%= h(params[:q]) %>"/></form>
 <% end %>
         </div>
         <div id="header_logo">
-            <a href="/"><img width="49" height="49" src="<%= @taginfo_config.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
-            <a href="/"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+	    <a href="<%= @taginfo_config.id %>"><img width="49" height="49" src="<%= @taginfo_config.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
+            <a href="<%= @taginfo_config.id %>"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+	<span id="header_text">
+		<a href="<%= @taginfo_config.id %>"><%= @taginfo_config.get('instance.header', 'Regional Database') %></a>
+	</span>
         </div>
     </div>
     <ul id="menu">
-        <li><a <%= in_section('keys') %>href="/keys"><%= h(t.osm.keys) %></a></li>
-        <li><a <%= in_section('tags') %>href="/tags"><%= h(t.osm.tags) %></a></li>
-        <li><a <%= in_section('relations') %>href="/relations"><%= h(t.osm.relations) %></a></li>
-        <li><a <%= in_section('projects') %>href="/projects"><%= h(t.taginfo.projects) %></a></li>
-        <li><a <%= in_section('reports') %>href="/reports"><%= h(t.taginfo.reports) %></a></li>
-        <li><a <%= in_section('about') %>href="/about"><%= h(t.taginfo.about) %></a></li>
+        <li><a <%= in_section('keys') %>href="<%= @taginfo_config.id %>/keys"><%= h(t.osm.keys) %></a></li>
+        <li><a <%= in_section('tags') %>href="<%= @taginfo_config.id %>/tags"><%= h(t.osm.tags) %></a></li>
+        <li><a <%= in_section('relations') %>href="<%= @taginfo_config.id %>/relations"><%= h(t.osm.relations) %></a></li>
+        <li><a <%= in_section('projects') %>href="<%= @taginfo_config.id %>/projects"><%= h(t.taginfo.projects) %></a></li>
+        <li><a <%= in_section('reports') %>href="<%= @taginfo_config.id %>/reports"><%= h(t.taginfo.reports) %></a></li>
+        <li><a <%= in_section('about') %>href="<%= @taginfo_config.id %>/about"><%= h(t.taginfo.about) %></a></li>
     </ul>
     <div id="main">
 <% if under_section %>
         <div class="section_title">
-            <a class="section" href="/<%= @section %>"><%= @section_title %></a>
+		<a class="section" href="<%= @taginfo_config.id %>/<%= @section %>"><%= @section_title %></a>
         </div>
 <% end %>
 <%= yield %>
@@ -58,12 +61,12 @@
         <div id="footer_left"><span id="osmlink"><a class="extlink" href="//www.openstreetmap.org/"><b>OpenStreetMap</b></a> &middot;</span>
             <a href="//www.openstreetmap.org/copyright">Data &copy; OSM contributors (ODbL)</a></div>
         <div id="footer_right">
-            <a href="/sources"><%= h(t.taginfo.sources) %></a> &middot;
+            <a href="<%= @taginfo_config.id %>/sources"><%= h(t.taginfo.sources) %></a> &middot;
 <% if SECTIONS[:download] %>
-            <a href="/download"><%= h(t.taginfo.download) %></a> &middot;
+            <a href="<%= @taginfo_config.id %>/download"><%= h(t.taginfo.download) %></a> &middot;
 <% end %>
 <% if SECTIONS[:taginfo] %>
-            <a href="/taginfo/apidoc">API</a> &middot;
+            <a href="<%= @taginfo_config.id %>/taginfo/apidoc">API</a> &middot;
 <% end %>
             <a id="help_link" href="#help"><%= h(t.misc.help) %></a> &middot;
             <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo"><%= h(t.taginfo.wiki) %></a>
@@ -72,8 +75,8 @@
     <div id="javascriptmsg">This website only works with Javascript! Please enable Javascript in your browser.</div>
     <div id="help"><div id="help_tabs">
         <ul>
-            <li><a href="/help/search"><%= h(t.help.search.title) %></a></li>
-            <li><a href="/help/keyboard"><%= h(t.help.keyboard.title) %></a></li>
+            <li><a href="<%= @taginfo_config.id %>/help/search"><%= h(t.help.search.title) %></a></li>
+            <li><a href="<%= @taginfo_config.id %>/help/keyboard"><%= h(t.help.keyboard.title) %></a></li>
         </ul>
     </div></div>
 </body>

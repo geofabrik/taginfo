@@ -3,11 +3,17 @@
 class TaginfoConfig
 
     @config = {}
+    @id = ''
 
-    def initialize(configfile)
+    def initialize(configfile, id)
         open(configfile) do |file|
             @config = JSON.parse(file.gets(nil), { :create_additions => false })
         end
+        @id = id
+    end
+
+    def id
+        @id
     end
 
     def get(key, default=nil)

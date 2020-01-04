@@ -15,7 +15,7 @@
             <img src="<%= h(project['icon_url']) %>" width="16" height="16" alt=""/>
         </td>
         <td class="<%= c %> nowrap">
-            <a href="/projects/<%= h(project['id']) %>"><%= h(project['id']) %></a><br/>
+            <a href="<%= @taginfo_config.id %>/projects/<%= h(project['id']) %>"><%= h(project['id']) %></a><br/>
             <%= h(project['name']) %>
         </td>
         <td class="<%= c %> nowrap">

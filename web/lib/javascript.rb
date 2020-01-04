@@ -2,7 +2,12 @@
 
 def javascript(url=nil, &block)
     @javascript ||= Array.new
-    @javascript << Javascript.new(url, &block)
+    @javascript << Javascript.new(url, nil, &block)
+end
+
+def javascript_with_prefix(prefix, url)
+    @javascript ||= Array.new
+    @javascript << Javascript.new(url, prefix)
 end
 
 def javascript_tags
@@ -28,19 +33,20 @@ class Javascript
         js = []
         ids.each do |id|
             @@js_files[id].each do |file|
-                js << self.new(file)
+                js << self.new(file, nil)
             end
         end
         js
     end
 
-    def initialize(file)
+    def initialize(file, prefix)
         if file.nil?
             c = ''
             r = yield c
             @content = (c == '' ? r : c)
         else
             @file = file
+            @prefix = prefix
         end
     end
 
@@ -48,7 +54,7 @@ class Javascript
         if @file.nil?
             %Q{    <script type="text/javascript">//<![CDATA[\n#{ @content }//]]></script>}
         else
-            %Q{    <script type="text/javascript" src="/js/#{ @file }.js"></script>}
+            %Q{    <script type="text/javascript" src="#{ @prefix }/js/#{ @file }.js"></script>}
         end
     end
 

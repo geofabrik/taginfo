@@ -46,7 +46,8 @@ class Taginfo < Sinatra::Base
         end
 
         javascript_for(:flexigrid, :d3)
-        javascript "#{ r18n.locale.code }/relation"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/relation"
+
         erb :relation
     end
 

@@ -53,9 +53,9 @@ var bad_chars_for_url = /[.=\/]/;
 function url_for_key(key) {
     var k = encodeURIComponent(key);
     if (key.match(bad_chars_for_url)) {
-        return '/keys/?key=' + k;
+	return '<%= @taginfo_config.id %>/keys/?key=' + k;
     } else {
-        return '/keys/' + k;
+        return '<%= @taginfo_config.id %>/keys/' + k;
     }
 }
 
@@ -63,23 +63,23 @@ function url_for_tag(key, value) {
     var k = encodeURIComponent(key),
         v = encodeURIComponent(value);
     if (key.match(bad_chars_for_url) || value.match(bad_chars_for_url)) {
-        return '/tags/?key=' + k + '&value=' + v;
+        return '<%= @taginfo_config.id %>/tags/?key=' + k + '&value=' + v;
     } else {
-        return '/tags/' + k + '=' + v;
+        return '<%= @taginfo_config.id %>/tags/' + k + '=' + v;
     }
 }
 
 function url_for_rtype(rtype) {
     var t = encodeURIComponent(rtype);
     if (rtype.match(bad_chars_for_url)) {
-        return '/relations/?rtype=' + t;
+        return '<%= @taginfo_config.id %>/relations/?rtype=' + t;
     } else {
-        return '/relations/' + t;
+        return '<%= @taginfo_config.id %>/relations/' + t;
     }
 }
 
 function url_for_project(id) {
-    return '/projects/' + encodeURIComponent(id);
+    return '<%= @taginfo_config.id %>/projects/' + encodeURIComponent(id);
 }
 
 function url_for_wiki(title, options) {
@@ -686,7 +686,7 @@ function comparison_list_url(list) {
     });
 
     if (okay) {
-        return '/compare/' + jQuery.map(list, function(item, i) {
+        return '<%= @taginfo_config.id %>/compare/' + jQuery.map(list, function(item, i) {
             return item[0] + (item[1] === null ? '' : ('=' + item[1]));
         }).join('/');
     } else {
@@ -696,7 +696,7 @@ function comparison_list_url(list) {
             keys.push(item[0]);
             values.push(item[1] === null ? '' : item[1]);
         });
-        return '/compare/?' + jQuery.param({ 'key': keys, 'value': values });
+	return '<%= @taginfo_config.id %>/compare/?' + jQuery.param({ 'key': keys, 'value': values });
     }
 }
 
@@ -800,14 +800,14 @@ jQuery(document).ready(function() {
 
     jQuery('#search').autocomplete({
         minLength: 2,
-        source: '/search/suggest?format=simple',
+        source: '<%= @taginfo_config.id %>/search/suggest?format=simple',
         delay: 10,
         select: function(event, ui) {
             var query = ui.item.value;
             if (query.match(/=/)) {
-                window.location = '/tags/' + ui.item.value;
+                window.location = '<%= @taginfo_config.id %>/tags/' + ui.item.value;
             } else {
-                window.location = '/keys/' + ui.item.value;
+                window.location = '<%= @taginfo_config.id %>/keys/' + ui.item.value;
             }
         }
     });
@@ -834,22 +834,22 @@ jQuery(document).ready(function() {
                         window.location = '/';
                         return false;
                     case 107: // k
-                        window.location = '/keys';
+                        window.location = '<%= @taginfo_config.id %>/keys';
                         return false;
                     case 112: // p
-                        window.location = '/projects';
+                        window.location = '<%= @taginfo_config.id %>/projects';
                         return false;
                     case 114: // r
-                        window.location = '/relations';
+                        window.location = '<%= @taginfo_config.id %>/relations';
                         return false;
                     case 115: // s
                         jQuery('input#search').focus();
                         return false;
                     case 116: // t
-                        window.location = '/tags';
+                        window.location = '<%= @taginfo_config.id %>/tags';
                         return false;
                     case 120: // x
-                        window.location = '/reports';
+                        window.location = '<%= @taginfo_config.id %>/reports';
                         return false;
                 }
             }

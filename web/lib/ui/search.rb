@@ -5,7 +5,8 @@ class Taginfo < Sinatra::Base
     get '/search' do
         @title = t.pages.search.title
 
-        javascript "#{ r18n.locale.code }/search"
+        javascript_with_prefix @taginfo_config.id, "#{ r18n.locale.code }/search"
+
         @query = params[:q]
         javascript_for(:flexigrid)
         if @query =~ /(.*)=(.*)/
