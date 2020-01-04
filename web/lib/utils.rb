@@ -42,7 +42,7 @@ end
 def title
     @title = [] if @title.nil?
     @title = [@title] unless @title.is_a?(Array)
-    @title << TaginfoConfig.get('instance.name', 'OpenStreetMap Taginfo')
+    @title << @taginfo_config.get('instance.name', 'OpenStreetMap Taginfo')
     @title.join(' | ')
 end
 
@@ -82,7 +82,7 @@ def xapi_url(element, key, value=nil)
     else
         predicate += xapi_escape(value)
     end
-    TaginfoConfig.get('xapi.url_prefix', 'http://www.informationfreeway.org/api/0.6/') + "#{ element }[#{ Rack::Utils::escape(predicate) }]"
+    @taginfo_config.get('xapi.url_prefix', 'http://www.informationfreeway.org/api/0.6/') + "#{ element }[#{ Rack::Utils::escape(predicate) }]"
 end
 
 def xapi_link(element, key, value=nil)
@@ -98,7 +98,7 @@ def quote_double(text)
 end
 
 def turbo_link(count, filter, key, value=nil)
-    if count <= TaginfoConfig.get('turbo.max_auto', 100)
+    if count <= @taginfo_config.get('turbo.max_auto', 100)
         key = quote_double(key)
         if value.nil?
             value = '*'
@@ -108,7 +108,7 @@ def turbo_link(count, filter, key, value=nil)
         if filter != 'all'
             filter_condition = ' and type:' + filter.chop
         end
-        url = TaginfoConfig.get('turbo.url_prefix', 'https://overpass-turbo.eu/?') + 'w=' + Rack::Utils::escape('"' + key + '"=' + value + filter_condition.to_s + ' ' + TaginfoConfig.get('turbo.wizard_area', 'global')) + '&R'
+        url = @taginfo_config.get('turbo.url_prefix', 'https://overpass-turbo.eu/?') + 'w=' + Rack::Utils::escape('"' + key + '"=' + value + filter_condition.to_s + ' ' + @taginfo_config.get('turbo.wizard_area', 'global')) + '&R'
     else
         template = 'key';
         parameters = { :key => key }
@@ -124,7 +124,7 @@ def turbo_link(count, filter, key, value=nil)
         end
         parameters[:template] = template
 
-        url = TaginfoConfig.get('turbo.url_prefix', 'https://overpass-turbo.eu/?') + Rack::Utils::build_query(parameters)
+        url = @taginfo_config.get('turbo.url_prefix', 'https://overpass-turbo.eu/?') + Rack::Utils::build_query(parameters)
     end
     return '<span class="button">' + external_link('turbo_button', 'Overpass turbo', url, true) + '</span>'
 end

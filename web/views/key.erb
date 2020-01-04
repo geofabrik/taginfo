@@ -21,13 +21,13 @@
         </select>
     </form>
     <div id="tools" class="no-print">
-        <% if @count_all_values <= TaginfoConfig.get('xapi.max_results', 1000) %>
+        <% if @count_all_values <= @taginfo_config.get('xapi.max_results', 1000) %>
             <%= xapi_link(@filter_xapi, @key) %> <%= josm_link(@filter_xapi, @key) %>
         <% else %>
             <span class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">XAPI</span>
             <span class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">JOSM</span>
         <% end %>
-        <% if @count_all_values <= TaginfoConfig.get('level0.max_results', 10) %>
+        <% if @count_all_values <= @taginfo_config.get('level0.max_results', 10) %>
             <%= level0_link() %>
         <% else %>
             <span class="button disabled" title="<%= h(t.pages.key.button_disabled) %>">Level0 Editor</span>
@@ -80,20 +80,20 @@
     <div id="map">
         <h2><%= h(t.pages.key.geographic_distribution.title) %></h2>
         <% if @filter_type == 'all' %>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
+            <div style="background-image: url(<%= @taginfo_config.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
                 <img class="map" src="/api/4/key/distribution/nodes?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>" style="position: absolute;"/>
                 <img class="map" src="/api/4/key/distribution/ways?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'nodes' %>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
+            <div style="background-image: url(<%= @taginfo_config.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
                 <img class="map" src="/api/4/key/distribution/nodes?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'ways' %>
-            <div style="background-image: url(<%= TaginfoConfig.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
+            <div style="background-image: url(<%= @taginfo_config.get('geodistribution.background_image') %>); background-repeat: no-repeat; background-position: 1px 1px;"/>
                 <img class="map" src="/api/4/key/distribution/ways?key=<%= @key_uri %>" alt="" width="<%= @img_width %>" height="<%= @img_height %>"/>
-                <div class="note"><%= TaginfoConfig.get('geodistribution.image_attribution') %></div>
+                <div class="note"><%= @taginfo_config.get('geodistribution.image_attribution') %></div>
             </div>
         <% elsif @filter_type == 'relations' %>
             <p class="empty"><%= h(t.pages.key.geographic_distribution.relations) %></p>
@@ -143,7 +143,7 @@ function page_init2() {
     }
 
     jQuery('#level0_button').bind('click', function() {
-        return level0_editor('#{ TaginfoConfig.get('level0.overpass_url_prefix') }', '#{ TaginfoConfig.get('level0.level0_url_prefix') }', filter, key, undefined);
+        return level0_editor('#{ @taginfo_config.get('level0.overpass_url_prefix') }', '#{ @taginfo_config.get('level0.level0_url_prefix') }', filter, key, undefined);
     });
 
     init_tabs([key, filter, #{ r18n.locale.code.to_json }]);

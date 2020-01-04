@@ -1,30 +1,40 @@
 # web/lib/sources.rb
-class Source
+class Sources
 
-    @@sources = Array.new
-
-    attr_reader :id, :name, :data_until, :update_start, :update_end, :visible, :dbsize, :dbpack
+    def initialize(taginfo_config)
+       @taginfo_config = taginfo_config
+       @sources = Array.new
+    end
 
     # Enumerate all available sources
-    def self.each
-        @@sources.each do |source|
+    def each
+        @sources.each do |source|
             yield source
         end
     end
 
     # The number of available sources
-    def self.size
-        @@sources.size
+    def size
+        @sources.size
     end
 
-    def self.visible
-        @@sources.select{ |source| source.visible }
+    def visible
+        @sources.select{ |source| source.visible }
     end
+
+    def add(id, name, data_until, update_start, update_end, visible)
+        @sources << Source.new(@taginfo_config, id, name, data_until, update_start, update_end, visible)
+    end
+end
+
+class Source
+
+    attr_reader :id, :name, :data_until, :update_start, :update_end, :visible, :dbsize, :dbpack
 
     # Create new source
     #  id - Symbol with id for this source
     #  name - Name of this source
-    def initialize(id, name, data_until, update_start, update_end, visible)
+    def initialize(taginfo_config, id, name, data_until, update_start, update_end, visible)
         @id           = id.to_sym
         @name         = name
         @data_until   = data_until
@@ -32,12 +42,10 @@ class Source
         @update_end   = update_end
         @visible      = visible
 
-        data_dir = TaginfoConfig.get('paths.data_dir', '../../data')
-        download_dir = TaginfoConfig.get('paths.download_dir', '../../download')
+        data_dir = taginfo_config.get('paths.data_dir', '../../data')
+        download_dir = taginfo_config.get('paths.download_dir', '../../download')
         @dbsize = File.size("#{ data_dir }/#{ dbname }").to_bytes rescue 0
         @dbpack = File.size("#{ download_dir }/#{ dbname }.bz2").to_bytes rescue 0
-
-        @@sources << self
     end
 
     # The URL where this source is described

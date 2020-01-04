@@ -160,7 +160,7 @@ end
 def generate_json_result(total, data)
     result = {
         :url        => request.url,
-        :data_until => @data_until_m
+        :data_until => @db.data_until_m
     }
 
     if @ap.results_per_page > 0

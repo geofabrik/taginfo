@@ -9,9 +9,9 @@ require './taginfo.rb'
 require 'json'
 require 'lib/config.rb'
 
-TaginfoConfig.read
+$taginfo_config = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json')
 
-LOGDIR=TaginfoConfig.get('logging.directory', '/osm/taginfo/var/log');
+LOGDIR=$taginfo_config.get('logging.directory', '/osm/taginfo/var/log');
 
 set :run, false
 set :environment, :production

@@ -57,14 +57,12 @@ require 'lib/langtag/bcp47.rb'
 
 #------------------------------------------------------------------------------
 
-TaginfoConfig.read
+defined?($taginfo_config) || $taginfo_config = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json')
 
 #------------------------------------------------------------------------------
 
 ALL_SECTIONS = %w(download taginfo test)
-SECTIONS = Hash[TaginfoConfig.get('instance.sections', ALL_SECTIONS).collect { |s| [s.to_sym, s] } ]
-
-DATA_UNTIL = SQL::Database.init(TaginfoConfig.get('paths.data_dir', '../../data'));
+SECTIONS = Hash[$taginfo_config.get('instance.sections', ALL_SECTIONS).collect { |s| [s.to_sym, s] } ]
 
 class Taginfo < Sinatra::Base
 
@@ -118,6 +116,9 @@ class Taginfo < Sinatra::Base
             params[:locale] = request.cookies['taginfo_locale']
         end
 
+        # use global config for this request.
+        @taginfo_config = $taginfo_config
+
         javascript_for(:common)
         javascript_for(:taginfo)
         javascript r18n.locale.code + '/texts'
@@ -126,10 +127,8 @@ class Taginfo < Sinatra::Base
         # (otherwise switching languages doesn't work)
         expires 0, :no_cache
 
-        @db = SQL::Database.new.attach_sources
+        @db = SQL::Database.new(@taginfo_config).attach_sources
 
-        @data_until = DATA_UNTIL.sub(/:..$/, '')
-        @data_until_m = DATA_UNTIL.sub(' ', 'T') + 'Z'
     end
 
     after do
@@ -141,7 +140,7 @@ class Taginfo < Sinatra::Base
     before '/api/*' do
         content_type :json, :charset => 'UTF-8'
         expires next_update
-        cors = TaginfoConfig.get('instance.access_control_allow_origin', '')
+        cors = @taginfo_config.get('instance.access_control_allow_origin', '')
         if cors != ""
             headers['Access-Control-Allow-Origin'] = cors
         end

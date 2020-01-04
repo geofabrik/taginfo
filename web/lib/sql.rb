@@ -6,25 +6,9 @@ module SQL
     # Wrapper for a database connection.
     class Database
 
-        # This has to be called once to initialize the context for the database
-        def self.init(dir)
-            @@dir = dir
-
-            db = SQL::Database.new
-
-            db.select('SELECT * FROM sources ORDER BY no').execute().each do |source|
-                Source.new(source['id'], source['name'], source['data_until'], source['update_start'], source['update_end'], source['visible'].to_i == 1)
-            end
-
-            data_until = db.select("SELECT min(data_until) FROM sources WHERE id='db'").get_first_value()
-
-            db.close
-
-            data_until
-        end
-
-        def initialize
-            filename = @@dir + '/taginfo-master.db'
+        def initialize(taginfo_config)
+            @dir = taginfo_config.get('paths.data_dir', '../../../data')
+            filename = @dir + '/taginfo-master.db'
             @db = SQLite3::Database.new(filename, { :readonly => true })
             @db.results_as_hash = true
 
@@ -32,15 +16,37 @@ module SQL
             @db.execute('SELECT * FROM languages') do |row|
                 Language.new(row)
             end
+            @min_duration = taginfo_config.get('logging.min_duration', 0)
+            @sources = Sources.new(taginfo_config)
+            select('SELECT * FROM sources ORDER BY no').execute().each do |source|
+                @sources.add(source['id'], source['name'], source['data_until'], source['update_start'], source['update_end'], source['visible'].to_i == 1)
+            end
+        end
+
+        def sources
+            @sources
+        end
+
+        def data_until_raw
+            defined?(@data_until_raw) || @data_until_raw = select("SELECT min(data_until) FROM sources WHERE id='db'").get_first_value()
+            @data_until_raw
+        end
+
+        def data_until
+            data_until_raw.sub(/:..$/, '')
+        end
+
+        def data_until_m
+            data_until_raw.sub(' ', 'T') + 'Z'
         end
 
         def attach_source(filename, name)
-            @db.execute('ATTACH DATABASE ? AS ?', "#{ @@dir }/#{ filename }", name)
+            @db.execute('ATTACH DATABASE ? AS ?', "#{ @dir }/#{ filename }", name)
             @db.execute("PRAGMA #{ name }.journal_mode = OFF")
         end
 
         def attach_sources
-            Source.each do |source|
+            @sources.each do |source|
                 attach_source(source.dbname, source.id.to_s)
             end
             attach_source('taginfo-search.db', 'search')
@@ -58,8 +64,7 @@ module SQL
             out = yield
             duration = Time.now - t1
 
-            min_duration = TaginfoConfig.get('logging.min_duration', 0)
-            if duration > min_duration
+            if duration > @min_duration
                 if params.size > 0
                     p = ' params=[' + params.map{ |p| "'#{p}'" }.join(', ') + ']'
                 else
