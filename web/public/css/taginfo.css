@@ -269,6 +269,26 @@ header {
     height: 24px;
 }
 
+header div#header_forms form#set_instance {
+    padding-left: 0;
+}
+
+@media screen and (max-width: 640px) {
+header div#header_forms form#set_instance {
+    display: none
+}
+}
+
+span#header_instance {
+    font-size: xx-large;
+    color: purple ! important;
+    font-style: sans-serif;
+    font-weight: bold;
+    margin-left: 10px;
+    vertical-align: top;
+    line-height: 50px;
+}
+
 input#search {
     height: 18px;
     width: 228px;

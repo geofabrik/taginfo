@@ -12,7 +12,8 @@ require 'lib/config'
 set :run, false
 set :environment, :production
 
-logdir = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json').get('logging.directory')
+# logdir = TaginfoConfig.new(File.expand_path(File.dirname(__FILE__)) + '/../../taginfo-config.json').get('logging.directory')
+logdir = ''
 
 if logdir.to_s != ''
     today = Time.now.strftime('%Y-%m-%d')

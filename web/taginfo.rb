@@ -60,7 +60,44 @@ require 'lib/r18n'
 
 #------------------------------------------------------------------------------
 
-TAGINFO_CONFIG = TaginfoConfig.new(__dir__ + '/../../taginfo-config.json')
+def find_configs(start, path)
+    Dir.foreach(File.join(start, path)) do |entry|
+        newpath = File.join(path, entry)
+        fullpath = File.join(start, newpath)
+        if entry == "." or entry == ".."
+            next
+        elsif File.directory?(fullpath)
+            find_configs(start, newpath)
+        elsif entry == "taginfo-config.json"
+            slug = path.downcase.gsub(/[^a-z-]/, ':')
+            slug.delete_prefix!(':')
+            if CONFIGS[slug]
+                # fixme error - ambiguous directory name, append random stuff
+            end
+            CONFIGS[slug] = TaginfoConfig.new(fullpath, slug)
+            INSTANCES[slug] = CONFIGS[slug].get("instance.area")
+        end
+    end
+end
+
+TAGINFO_CONFIG_DIR = __dir__ + '/../../data';
+
+if !File.directory?(TAGINFO_CONFIG_DIR)
+    # fixme error
+end
+
+if File.file?(TAGINFO_CONFIG_DIR + '/taginfo-config.json')
+    MULTI_CONFIG = false
+    TAGINFO_CONFIG = TaginfoConfig.new(TAGINFO_CONFIG_DIR + '/taginfo-config.json', '')
+else
+    MULTI_CONFIG = true
+    CONFIGS = {}
+    INSTANCES = {}
+    find_configs(TAGINFO_CONFIG_DIR, "")
+    # select random config to use in case none specified in URL
+    TAGINFO_CONFIG = CONFIGS.values[0];
+    # FIXME error out if no configs found
+end
 
 #------------------------------------------------------------------------------
 
@@ -116,6 +153,20 @@ class Taginfo < Sinatra::Base
         if request.path.include?("\ufffd") || request.path.include?('%EF%BF%BD')
             halt 400, 'invalid UTF-8'
             return
+
+        @default_instance_selected = false
+        if MULTI_CONFIG
+            @default_instance_selected = true
+            paths = env['PATH_INFO'].split('/', -1)
+            paths.shift();
+            instance = paths.shift()
+            paths.unshift('') unless paths[0] == ''
+            if CONFIGS[instance]
+                @taginfo_config = CONFIGS[instance]
+                @default_instance_selected = false
+                env['PATH_INFO'] = paths.join('/')
+            end
+            # nb not having a config in multi-config mode is acceptable, eg for /img urls
         end
 
         javascript_for(:taginfo)
@@ -135,6 +186,8 @@ class Taginfo < Sinatra::Base
 
         @context = {
             instance: @taginfo_config.id,
+            instances: INSTANCES,
+            default_instance_selected: @default_instance_selected,
             lang: r18n.locale.code || 'en'
         }
     end
