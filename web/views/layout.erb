@@ -15,9 +15,72 @@
     <script id="context" type="application/json">
 <%= data_as_script(@context) %>
     </script>
+    <script>
+    function generate_instance_list(path, type)
+    {
+       var level = -1;
+       var ul = "";
+       var sel = "";
+       Object.keys(context.instances).sort().forEach(slug => { 
+          if (slug.startsWith("north-america:us-")) return;
+          var pretty = context.instances[slug];
+          var lt = pretty.indexOf("<");
+          if (lt>0) pretty=pretty.substr(0,lt);
+          var new_level = (slug.match(/:/g)||[]).length
+          if (new_level > level) {
+             ul += '<ul>'.repeat(new_level - level);
+          } else if (new_level < level) {
+             ul += '</ul>'.repeat(level - new_level);
+          }
+          ul += '<li><a href="/' + slug + path + '">' + pretty + '</a></li>';
+          level = new_level;
+          sel += "<option ";
+          if (slug == context.instance) sel += "selected ";
+          sel += "value=\"" + slug + "\">" + "&nbsp;&nbsp;&nbsp;".repeat(level+1);
+          if (level==0) sel += "<u>";
+          sel += pretty;
+          if (level==0) sel += "</u>";
+          sel +=  "</option>";
+       });
+       if (level>0) ul += '</ul>'.repeat(level);
+       return (type == 'ul') ? ul : sel;
+   }
+    </script>
 <%= javascript_tags %>
 </head>
 <body>
+<% if @context[:default_instance_selected] %>
+    <header>
+        <div id="header_logo">
+            <a href="<%= build_link("/") %>"><img width="49" height="49" src="<%= @taginfo_config.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
+            <a href="<%= build_link("/") %>"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+            <span id="header_instance">
+               Regional Databases
+            </span>
+        </div>
+    </header>
+    <nav>
+    <ul id="menu" class="no-print">
+    <li>Index</li>
+    </ul>
+    </nav>
+    <main>
+    <p>
+    This taginfo site contains regional databases for all regions featured on the <a class="extlink" href="//download.geofabrik.de/">Geofabrik download server.</a> Please select a region from the list below, or <a class="extlink" href="//taginfo.openstreetmap.org">visit OpenStreetMap's global taginfo.</a>
+    </p>
+    <div id="instances_ul" />
+    <script>
+       document.getElementById('instances_ul').innerHTML = generate_instance_list("", "ul");
+    </script>
+    </main>
+    <footer class="no-print">
+        <div id="footer_left"><span id="osmlink"><a class="extlink" href="//www.openstreetmap.org/"><b>OpenStreetMap</b></a> &middot;</span>
+            <a href="//www.openstreetmap.org/copyright">Data &copy; OSM contributors (ODbL)</a></div>
+        <div id="footer_right">
+            <a class="extlink" href="//wiki.openstreetmap.org/wiki/Taginfo"><%= h(t.taginfo.wiki) %></a>
+        </div>
+    </footer>
+<% else %>
     <div id="tooltip"></div>
     <div id="menu-button-wrapper">
         <div id="menu-button"></div>
@@ -26,8 +89,14 @@
         <div class="header-logo key-tooltip">
             <a href="/"><img width="49" height="49" src="<%= @taginfo_config.get('instance.icon', '/img/logo/world.png') %>" alt="taginfo"/></a>
             <a href="/"><img width="129" height="49" src="/img/logo/taginfo.png" alt="taginfo"/></a>
+            <span id="header_instance">
+               <a href="<%= build_link("/") %>" id="instance"><%= @taginfo_config.get('instance.area', 'Regional Database') %></a>
+            </span>
         </div>
         <div class="no-print">
+            <form id="set_instance">
+                <select id="instance_select" name="instance"></select>
+            </form>
             <form class="header-language-switcher" id="set_language" action="<%= build_link('/switch_locale') %>">
                 <input type="hidden" id="url" name="url" value="<%= request.path %>"/>
                 <select id="locale" name="locale">
@@ -86,6 +155,23 @@
             <span class="key">?</span> <%= h(t.help.keyboard.show_keys) %>
         </div>
     </footer>
+    <script>
+       document.getElementById("instance_select").addEventListener("change", function() {
+          var path = window.location.href;
+          var match = path.indexOf(context.instance);
+          if (match > -1)
+          {
+              path = path.substring(match + context.instance.length);
+          }
+          else
+          {
+              path = "";
+          }
+          window.location.href = "/" + this.value + path;
+       });
+       document.getElementById("instance_select").innerHTML = generate_instance_list('', 'select'); 
+    </script>
+<% end %>
     <div id="javascriptmsg">This website only works with Javascript! Please enable Javascript in your browser.</div>
     <script>document.getElementById('javascriptmsg').remove();</script>
 </body>
