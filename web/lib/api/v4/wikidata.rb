@@ -17,6 +17,10 @@ class Taginfo < Sinatra::Base
         :example => { :lang => 'fr', :page => 1, :rp => 10, :sortname => 'item', :sortorder => 'asc' },
         :ui => '/sources/wikidata/keys'
     }) do
+        if not @sources.get('wikidata')
+            halt 404
+        end
+
         language = params[:lang] || 'en'
         query = params[:query].to_s
         query_like = like_contains(query)
@@ -75,6 +79,10 @@ class Taginfo < Sinatra::Base
         :example => { :lang => 'fr', :page => 1, :rp => 10, :sortname => 'item', :sortorder => 'asc' },
         :ui => '/sources/wikidata/tags'
     }) do
+        if not @sources.get('wikidata')
+            halt 404
+        end
+
         language = params[:lang] || 'en'
         query = params[:query].to_s
         query_like = like_contains(query)
@@ -132,6 +140,10 @@ class Taginfo < Sinatra::Base
         :example => { :page => 1, :rp => 10, :sortname => 'item', :sortorder => 'asc' },
         :ui => '/sources/wikidata/errors'
     }) do
+        if not @sources.get('wikidata')
+            halt 404
+        end
+
         total = @db.count('wikidata.wikidata_errors').get_first_i
 
         res = @db.select("SELECT d.wikidata, d.code, d.propvalue, d.description, d.error FROM wikidata.wikidata_errors d").
