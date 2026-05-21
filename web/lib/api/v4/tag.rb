@@ -87,7 +87,7 @@ class Taginfo < Sinatra::Base
                 :other_key      => row['other_key'],
                 :other_value    => row['other_value'],
                 :together_count => row['together_count'].to_i,
-                :to_fraction    => (row['together_count'].to_f / has_this_key.to_f).round(4),
+                :to_fraction    => has_this_key ? (row['together_count'].to_f / has_this_key.to_f).round(4): nil,
                 :from_fraction  => row['from_fraction'].to_f.round(4)
             }
             end
