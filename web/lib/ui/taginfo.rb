@@ -145,6 +145,10 @@ class Taginfo < Sinatra::Base
             condition("id = ?", id).
             execute[0]
 
+        if not @data
+            halt 404
+        end
+
         erb :'taginfo/project_error_log'
     end
 
