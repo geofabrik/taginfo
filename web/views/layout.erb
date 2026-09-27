@@ -6,6 +6,7 @@
     <meta name="content-language" content="<%= r18n.locale.code %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" type="text/css" href="/css/taginfo.css" />
+    <link rel="stylesheet" type="text/css" href="/css/region-picker.css" />
     <link rel="search" type="application/opensearchdescription+xml" href="/search/opensearch.xml" title="<%= @taginfo_config.get('opensearch.shortname') %>" />
 <% if @css %>
     <style type="text/css"><!--
@@ -15,38 +16,9 @@
     <script id="context" type="application/json">
 <%= data_as_script(@context) %>
     </script>
-    <script>
-    function generate_instance_list(path, type)
-    {
-       var level = -1;
-       var ul = "";
-       var sel = "";
-       Object.keys(context.instances).sort().forEach(slug => { 
-          if (slug.startsWith("north-america:us-")) return;
-          var pretty = context.instances[slug];
-          var lt = pretty.indexOf("<");
-          if (lt>0) pretty=pretty.substr(0,lt);
-          var new_level = (slug.match(/:/g)||[]).length
-          if (new_level > level) {
-             ul += '<ul>'.repeat(new_level - level);
-          } else if (new_level < level) {
-             ul += '</ul>'.repeat(level - new_level);
-          }
-          ul += '<li><a href="/' + slug + path + '">' + pretty + '</a></li>';
-          level = new_level;
-          sel += "<option ";
-          if (slug == context.instance) sel += "selected ";
-          sel += "value=\"" + slug + "\">" + "&nbsp;&nbsp;&nbsp;".repeat(level+1);
-          if (level==0) sel += "<u>";
-          sel += pretty;
-          if (level==0) sel += "</u>";
-          sel +=  "</option>";
-       });
-       if (level>0) ul += '</ul>'.repeat(level);
-       return (type == 'ul') ? ul : sel;
-   }
-    </script>
+
 <%= javascript_tags %>
+    <script type="text/javascript" src="/js/region-picker.js"></script>
 </head>
 <body>
 <% if @context[:default_instance_selected] %>
@@ -68,9 +40,9 @@
     <p>
     This taginfo site contains regional databases for all regions featured on the <a class="extlink" href="//download.geofabrik.de/">Geofabrik download server.</a> Please select a region from the list below, or <a class="extlink" href="//taginfo.openstreetmap.org">visit OpenStreetMap's global taginfo.</a>
     </p>
-    <div id="instances_ul" />
+    <div id="instances_ul"></div>
     <script>
-       document.getElementById('instances_ul').innerHTML = generate_instance_list("", "ul");
+       TaginfoRegionPicker.renderIndexList(document.getElementById("instances_ul"), context);
     </script>
     </main>
     <footer class="no-print">
@@ -94,9 +66,7 @@
             </span>
         </div>
         <div class="no-print">
-            <form id="set_instance">
-                <select id="instance_select" name="instance"></select>
-            </form>
+            <form id="set_instance"></form>
             <form class="header-language-switcher" id="set_language" action="<%= build_link('/switch_locale') %>">
                 <input type="hidden" id="url" name="url" value="<%= request.path %>"/>
                 <select id="locale" name="locale">
@@ -156,20 +126,7 @@
         </div>
     </footer>
     <script>
-       document.getElementById("instance_select").addEventListener("change", function() {
-          var path = window.location.href;
-          var match = path.indexOf(context.instance);
-          if (match > -1)
-          {
-              path = path.substring(match + context.instance.length);
-          }
-          else
-          {
-              path = "";
-          }
-          window.location.href = "/" + this.value + path;
-       });
-       document.getElementById("instance_select").innerHTML = generate_instance_list('', 'select'); 
+       TaginfoRegionPicker.mount(document.getElementById("set_instance"), context);
     </script>
 <% end %>
     <div id="javascriptmsg">This website only works with Javascript! Please enable Javascript in your browser.</div>
