@@ -377,6 +377,15 @@ def build_link(link)
     end
 end
 
+def local_redirect_path(value)
+    # Lokale Pfade
+    path = value.to_s
+    return '/' unless path.start_with?('/') && !path.start_with?('//')
+    return '/' if path.include?('\\') || path.match?(/[[:cntrl:]]/)
+
+    path
+end
+
 def build_link_url(link)
     link = URI(link)
     if @taginfo_config.id != ''

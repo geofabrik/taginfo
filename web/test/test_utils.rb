@@ -23,4 +23,20 @@ class TestSql < Test::Unit::TestCase
         assert_equal '%@@123%', like_contains('@123')
     end
 
+    def test_local_redirect_path
+        assert_equal '/', local_redirect_path(nil)
+        assert_equal '/', local_redirect_path('')
+        assert_equal '/keys?filter=ways', local_redirect_path('/keys?filter=ways')
+        assert_equal '/', local_redirect_path('https://example.org/')
+        assert_equal '/', local_redirect_path('//example.org/')
+        assert_equal '/', local_redirect_path('/\\example.org/')
+        assert_equal '/', local_redirect_path("/keys\nLocation: https://example.org/")
+    end
+
+    def test_locale_redirect_keeps_instance
+        @taginfo_config = Struct.new(:id).new('africa:algeria')
+        assert_equal '/africa:algeria/keys', build_link(local_redirect_path('/keys'))
+        assert_equal '/africa:algeria/', build_link(local_redirect_path(''))
+    end
+
 end
