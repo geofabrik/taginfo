@@ -119,8 +119,17 @@
     form.addEventListener('keydown',event=>{
       if(panel.hidden) return;
       if(event.key==='Escape') {event.preventDefault();close();}
-      const rows = Array.from(list.querySelectorAll('button')); const index = rows.indexOf(document.activeElement);
-      if(event.key==='ArrowDown' || event.key==='ArrowUp') {event.preventDefault(); if(rows.length) rows[(index+(event.key==='ArrowDown'?1:rows.length-1))%rows.length].focus();}
+      const rows = Array.from(list.querySelectorAll('button'));
+      const index = rows.indexOf(document.activeElement);
+      // Pfeiltasten
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!rows.length) return;
+        const next = index < 0
+          ? (event.key === 'ArrowDown' ? 0 : rows.length - 1)
+          : (index + (event.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+        rows[next].focus();
+      }
       if(event.key==='ArrowLeft' && index>=0 && node.parent) {event.preventDefault();enter(node.parent);}
     });
     document.addEventListener('pointerdown',event=>{if(!panel.hidden && !form.contains(event.target)) close(false);});
